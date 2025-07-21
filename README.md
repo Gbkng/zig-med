@@ -8,7 +8,7 @@ build and install HDF5 and MEDFile libraries using CMake.**
 If you already have a local install of HDF5 and MEDFile, you can directly
 run:
 
-```
+```sh
 zig build -Dmedfile-install=$MEDFILE_INSTALL -Dhdf5-install=$HDF5_INSTALL
 ```
 
@@ -37,7 +37,7 @@ project documentation to learn how to use it.
 
 # [dependencies]() For Ubuntu 24.04
 
-```
+```sh
 sudo apt install libtirpc-dev cmake gcc libopenmpi-dev
 ```
 
@@ -46,7 +46,7 @@ sudo apt install libtirpc-dev cmake gcc libopenmpi-dev
 **WARNING:** this command is a convenience when starting from scratch, but is
 heavily inefficient for repeated builds.
 
-```
+```sh
 makedown clean-all
 makedown build-hdf5
 makedown build-medfile
@@ -55,13 +55,13 @@ makedown build-example
 
 # [clean-all]() Delete 'deps/' directory
 
-```
+```sh
 rm -rf ./deps
 ```
 
 # [build-hdf5]() Download, then build HDF5 1.10.3 under deps/build and install HDF5 under deps/install
 
-```
+```sh
 version_maj="1"
 version_min="10"
 version_patch="3"
@@ -97,7 +97,7 @@ MEDFile directly from Salome website without using a Web Browser proxy.
 The CMake approach is preferred over autotools in order to generate a
 `compile_commands.json`.
 
-```
+```sh
 version="4.1.1"
 
 mkdir -p deps
@@ -131,7 +131,7 @@ cmake --install "deps/build/med-${version}" --parallel "$(nproc)"
 
 # [build-example]() Build the example
 
-```
+```sh
 hdf5_version="1.10.3"
 med_version="4.1.1"
 
@@ -150,7 +150,7 @@ zig build --summary all \
 
 # [run-example]() Run the example
 
-```
-source run.env
+```sh
+. run.env
 ./zig-out/bin/main
 ```
