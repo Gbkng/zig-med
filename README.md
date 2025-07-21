@@ -41,7 +41,7 @@ project documentation to learn how to use it.
 sudo apt install libtirpc-dev cmake gcc libopenmpi-dev
 ```
 
-# [build-all]() Delete 'target/' and install everything from scratch
+# [build-all]() Delete 'deps/' and install everything from scratch
 
 **WARNING:** this command is a convenience when starting from scratch, but is
 heavily inefficient for repeated builds.
@@ -53,39 +53,39 @@ makedown build-medfile
 makedown build-example
 ```
 
-# [clean-all]() Delete 'target/' directory
+# [clean-all]() Delete 'deps/' directory
 
 ```
-rm -rf ./target
+rm -rf ./deps
 ```
 
-# [build-hdf5]() Download, then build HDF5 1.10.3 under target/build and install HDF5 under target/install
+# [build-hdf5]() Download, then build HDF5 1.10.3 under deps/build and install HDF5 under deps/install
 
 ```
-mkdir -p target/
-mkdir -p target/source
-mkdir -p target/archives
+mkdir -p deps/
+mkdir -p deps/source
+mkdir -p deps/archives
 
-wget 'https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-1.10.3/src/hdf5-1.10.3.tar.gz' -O 'target/archives/hdf5-1.10.3.tar.gz'
-tar -C 'target/source' -xf 'target/archives/hdf5-1.10.3.tar.gz'
+wget 'https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-1.10.3/src/hdf5-1.10.3.tar.gz' -O 'deps/archives/hdf5-1.10.3.tar.gz'
+tar -C 'deps/source' -xf 'deps/archives/hdf5-1.10.3.tar.gz'
 
-mkdir -p target/install
-mkdir -p target/build
+mkdir -p deps/install
+mkdir -p deps/build
 
 export CC=gcc
 
-cmake --fresh -S 'target/source/hdf5-1.10.3' -B 'target/build/hdf5-1.10.3' \
+cmake --fresh -S 'deps/source/hdf5-1.10.3' -B 'deps/build/hdf5-1.10.3' \
     -DCMAKE_BUILD_TYPE='RelWithDebInfo' \
     -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-    -DCMAKE_INSTALL_PREFIX='target/install/hdf5-1.10.3' \
+    -DCMAKE_INSTALL_PREFIX='deps/install/hdf5-1.10.3' \
     -DHDF5_ENABLE_PARALLEL=ON \
     -DHDF5_BUILD_CPP_LIB=OFF
-ln -sf '../../build/hdf5-1.10.3/compile_commands.json' 'target/source/hdf5-1.10.3/compile_commands.json'
-cmake --build 'target/build/hdf5-1.10.3' --parallel "$(nproc)" 
-cmake --install 'target/build/hdf5-1.10.3'
+ln -sf '../../build/hdf5-1.10.3/compile_commands.json' 'deps/source/hdf5-1.10.3/compile_commands.json'
+cmake --build 'deps/build/hdf5-1.10.3' --parallel "$(nproc)" 
+cmake --install 'deps/build/hdf5-1.10.3'
 ```
 
-# [build-medfile]() Download, then build medfile 4.1.1 under target/build and install medfile under target/install/
+# [build-medfile]() Download, then build medfile 4.1.1 under deps/build and install medfile under deps/install/
 
 Due to security restrictions, a `User-Agent` trick must be used to download
 MEDFile directly from Salome website without using a Web Browser proxy.
@@ -93,48 +93,48 @@ The CMake approach is preferred over autotools in order to generate a
 `compile_commands.json`.
 
 ```
-mkdir -p target
-mkdir -p target/source
-mkdir -p target/archives
+mkdir -p deps
+mkdir -p deps/source
+mkdir -p deps/archives
 
 wget -c --header="User-Agent: Mozilla/5.0 (X11; Linux x86_64)" \
   			--header="Referer: https://www.salome-platform.org/" \
             https://files.salome-platform.org/Salome/medfile/med-4.1.1.tar.gz \
-  			-O 'target/archives/med-4.1.1.tar.gz'
-tar -C 'target/source' -xf 'target/archives/med-4.1.1.tar.gz'
+  			-O 'deps/archives/med-4.1.1.tar.gz'
+tar -C 'deps/source' -xf 'deps/archives/med-4.1.1.tar.gz'
 
-mkdir -p target/install
-mkdir -p target/build
+mkdir -p deps/install
+mkdir -p deps/build
 
 export CC=gcc
 export CXX=g++
 
-cmake --fresh -S 'target/source/med-4.1.1' -B 'target/build/med-4.1.1' \
+cmake --fresh -S 'deps/source/med-4.1.1' -B 'deps/build/med-4.1.1' \
     -DCMAKE_BUILD_TYPE='RelWithDebInfo' \
     -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-    -DCMAKE_INSTALL_PREFIX='target/install/med-4.1.1' \
-    -DHDF5_ROOT_DIR='target/install/hdf5-1.10.3' \
+    -DCMAKE_INSTALL_PREFIX='deps/install/med-4.1.1' \
+    -DHDF5_ROOT_DIR='deps/install/hdf5-1.10.3' \
     -DMED_MEDINT_TYPE='int' \
     -DMEDFILE_USE_MPI='ON' \
     -DMEDFILE_INSTALL_DOC='OFF'
-ln -sf '../../build/med-4.1.1/compile_commands.json' 'target/source/med-4.1.1/compile_commands.json'
-cmake --build 'target/build/med-4.1.1' --parallel "$(nproc)" --target 'install'
+ln -sf '../../build/med-4.1.1/compile_commands.json' 'deps/source/med-4.1.1/compile_commands.json'
+cmake --build 'deps/build/med-4.1.1' --parallel "$(nproc)" --target 'install'
 ```
 
 # [build-example]() Build the example
 
 ```
-if ! [ -d "./target/install/hdf5-1.10.3" ]; then
+if ! [ -d "./deps/install/hdf5-1.10.3" ]; then
     echo "Fatal error: it seems that hdf5 has not been installed from the makedown script. Please run 'makedown build-hdf5' or 'makedown build-all'. Abort." >&2
     exit 1
 fi
-if ! [ -d "./target/install/med-4.1.1" ]; then
+if ! [ -d "./deps/install/med-4.1.1" ]; then
     echo "Fatal error: it seems that medfile has not been installed from the makedown script. Please run 'makedown build-medfile' or 'makedown build-all'. Abort." >&2
     exit 1
 fi
 zig build --summary all \
-    -Dhdf5-install=./target/install/hdf5-1.10.3 \
-    -Dmedfile-install=./target/install/med-4.1.1
+    -Dhdf5-install=./deps/install/hdf5-1.10.3 \
+    -Dmedfile-install=./deps/install/med-4.1.1
 ```
 
 # [run-example]() Run the example
