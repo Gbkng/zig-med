@@ -127,6 +127,7 @@ cmake --fresh -S "deps/source/med-${version}" -B "deps/build/med-${version}" \
 ln -sf "../../build/med-${version}/compile_commands.json" "deps/source/med-${version}/compile_commands.json"
 cmake --build "deps/build/med-${version}" --parallel "$(nproc)" 
 cmake --install "deps/build/med-${version}" --parallel "$(nproc)" 
+make -C "deps/build/med-${version}" test || echo "WARNING: Some MEDFile tests failed." >&2
 ```
 
 # [build-example]() Build the example
@@ -144,8 +145,8 @@ if ! [ -d "./deps/install/med-${med_version}" ]; then
     exit 1
 fi
 zig build --summary all \
-    -Dhdf5-install=./deps/install/hdf5-${hdf5_version} \
-    -Dmedfile-install=./deps/install/med-${med_version}
+    --search-prefix ./deps/install/hdf5-${hdf5_version} \
+    --search-prefix ./deps/install/med-${med_version}
 ```
 
 # [run-example]() Run the example
