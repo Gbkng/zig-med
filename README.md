@@ -152,6 +152,20 @@ zig build --summary all \
 # [run-example]() Run the example
 
 ```sh
-. run.env
-./zig-out/bin/main
+hdf5_version="1.10.3"
+med_version="4.1.1"
+hdf5_lib="./deps/install/hdf5-${hdf5_version}/lib"
+medfile_lib="./deps/install/med-${med_version}/lib"
+
+if ! [ -d "$hdf5_lib" ]; then
+    echo "Fatal error: hdf5 library directory not found at expected location ${hdf5_lib}. Please run 'makedown build-hdf5' or 'makedown build-all'. Abort." >&2
+    exit 1
+fi
+if ! [ -d "$medfile_lib" ]; then
+    echo "Fatal error: medfile library directory not found at expected location ${medfile_lib}. Please run 'makedown build-medfile' or 'makedown build-all'. Abort." >&2
+    exit 1
+fi
+
+LD_LIBRARY_PATH="$(realpath ${hdf5_lib}):$(realpath ${medfile_lib})" \
+    ./zig-out/bin/main
 ```
