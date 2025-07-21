@@ -62,30 +62,35 @@ rm -rf ./deps
 # [build-hdf5]() Download, then build HDF5 1.10.3 under deps/build and install HDF5 under deps/install
 
 ```
+version_maj="1"
+version_min="10"
+version_patch="3"
+version="${version_maj}.${version_min}.${version_patch}"
+
 mkdir -p deps/
 mkdir -p deps/source
 mkdir -p deps/archives
 
-wget 'https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-1.10.3/src/hdf5-1.10.3.tar.gz' -O 'deps/archives/hdf5-1.10.3.tar.gz'
-tar -C 'deps/source' -xf 'deps/archives/hdf5-1.10.3.tar.gz'
+wget "https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-${version_maj}.${version_min}/hdf5-${version}/src/hdf5-${version}.tar.gz" -O "deps/archives/hdf5-${version}.tar.gz"
+tar -C "deps/source" -xf "deps/archives/hdf5-${version}.tar.gz"
 
 mkdir -p deps/install
 mkdir -p deps/build
 
 export CC=gcc
 
-cmake --fresh -S 'deps/source/hdf5-1.10.3' -B 'deps/build/hdf5-1.10.3' \
+cmake --fresh -S "deps/source/hdf5-${version}" -B "deps/build/hdf5-${version}" \
     -DCMAKE_BUILD_TYPE='RelWithDebInfo' \
     -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-    -DCMAKE_INSTALL_PREFIX='deps/install/hdf5-1.10.3' \
+    -DCMAKE_INSTALL_PREFIX="deps/install/hdf5-${version}" \
     -DHDF5_ENABLE_PARALLEL=ON \
     -DHDF5_BUILD_CPP_LIB=OFF
-ln -sf '../../build/hdf5-1.10.3/compile_commands.json' 'deps/source/hdf5-1.10.3/compile_commands.json'
-cmake --build 'deps/build/hdf5-1.10.3' --parallel "$(nproc)" 
-cmake --install 'deps/build/hdf5-1.10.3'
+ln -sf "../../build/hdf5-${version}/compile_commands.json" "deps/source/hdf5-${version}/compile_commands.json"
+cmake --build "deps/build/hdf5-${version}" --parallel "$(nproc)" 
+cmake --install "deps/build/hdf5-${version}"
 ```
 
-# [build-medfile]() Download, then build medfile 4.1.1 under deps/build and install medfile under deps/install/
+# [build-medfile]() Download, then build medfile under deps/build and install medfile under deps/install/
 
 Due to security restrictions, a `User-Agent` trick must be used to download
 MEDFile directly from Salome website without using a Web Browser proxy.
@@ -93,15 +98,17 @@ The CMake approach is preferred over autotools in order to generate a
 `compile_commands.json`.
 
 ```
+version="4.1.1"
+
 mkdir -p deps
 mkdir -p deps/source
 mkdir -p deps/archives
 
 wget -c --header="User-Agent: Mozilla/5.0 (X11; Linux x86_64)" \
   			--header="Referer: https://www.salome-platform.org/" \
-            https://files.salome-platform.org/Salome/medfile/med-4.1.1.tar.gz \
-  			-O 'deps/archives/med-4.1.1.tar.gz'
-tar -C 'deps/source' -xf 'deps/archives/med-4.1.1.tar.gz'
+            "https://files.salome-platform.org/Salome/medfile/med-${version}.tar.gz" \
+  			-O "deps/archives/med-${version}.tar.gz"
+tar -C "deps/source" -xf "deps/archives/med-${version}.tar.gz"
 
 mkdir -p deps/install
 mkdir -p deps/build
@@ -109,32 +116,36 @@ mkdir -p deps/build
 export CC=gcc
 export CXX=g++
 
-cmake --fresh -S 'deps/source/med-4.1.1' -B 'deps/build/med-4.1.1' \
-    -DCMAKE_BUILD_TYPE='RelWithDebInfo' \
+cmake --fresh -S "deps/source/med-${version}" -B "deps/build/med-${version}" \
+    -DCMAKE_BUILD_TYPE="RelWithDebInfo" \
     -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-    -DCMAKE_INSTALL_PREFIX='deps/install/med-4.1.1' \
-    -DHDF5_ROOT_DIR='deps/install/hdf5-1.10.3' \
-    -DMED_MEDINT_TYPE='int' \
-    -DMEDFILE_USE_MPI='ON' \
-    -DMEDFILE_INSTALL_DOC='OFF'
-ln -sf '../../build/med-4.1.1/compile_commands.json' 'deps/source/med-4.1.1/compile_commands.json'
-cmake --build 'deps/build/med-4.1.1' --parallel "$(nproc)" --target 'install'
+    -DCMAKE_INSTALL_PREFIX="deps/install/med-${version}" \
+    -DHDF5_ROOT_DIR="deps/install/hdf5-1.10.3" \
+    -DMED_MEDINT_TYPE="int" \
+    -DMEDFILE_USE_MPI="ON" \
+    -DMEDFILE_INSTALL_DOC="OFF"
+ln -sf "../../build/med-${version}/compile_commands.json" "deps/source/med-${version}/compile_commands.json"
+cmake --build "deps/build/med-${version}" --parallel "$(nproc)" 
+cmake --install "deps/build/med-${version}" --parallel "$(nproc)" 
 ```
 
 # [build-example]() Build the example
 
 ```
-if ! [ -d "./deps/install/hdf5-1.10.3" ]; then
+hdf5_version="1.10.3"
+med_version="4.1.1"
+
+if ! [ -d "./deps/install/hdf5-${hdf5_version}" ]; then
     echo "Fatal error: it seems that hdf5 has not been installed from the makedown script. Please run 'makedown build-hdf5' or 'makedown build-all'. Abort." >&2
     exit 1
 fi
-if ! [ -d "./deps/install/med-4.1.1" ]; then
+if ! [ -d "./deps/install/med-${med_version}" ]; then
     echo "Fatal error: it seems that medfile has not been installed from the makedown script. Please run 'makedown build-medfile' or 'makedown build-all'. Abort." >&2
     exit 1
 fi
 zig build --summary all \
-    -Dhdf5-install=./deps/install/hdf5-1.10.3 \
-    -Dmedfile-install=./deps/install/med-4.1.1
+    -Dhdf5-install=./deps/install/hdf5-${hdf5_version} \
+    -Dmedfile-install=./deps/install/med-${med_version}
 ```
 
 # [run-example]() Run the example
